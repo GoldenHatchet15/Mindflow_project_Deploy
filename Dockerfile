@@ -19,6 +19,8 @@ RUN npm install recharts date-fns axios uuid bcryptjs jsonwebtoken --save
 
 RUN npm install mongodb
 
+RUN npm install express --save
+
 # Copy all files
 COPY . .
 
