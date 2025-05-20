@@ -1,31 +1,27 @@
-# Use Node.js as the base image
-FROM node:18-alpine
+# Build stage
+FROM node:18-alpine as build
 
-# Set working directory
 WORKDIR /app
 
-# Install global dependencies
-RUN npm install -g vite
-
-# Copy package files
+# Copy package files and install dependencies
 COPY package.json package-lock.json ./
-
-# Install dependencies
 RUN npm install
 
-# iNSTALL ADDITIONAL DEPENDENCIES
-RUN npm install recharts date-fns axios uuid bcryptjs jsonwebtoken --save
-
-
-RUN npm install mongodb
-
-RUN npm install express --save
-
-# Copy all files
+# Copy the rest of the application
 COPY . .
 
-# Expose port
-EXPOSE 8080
+# Build the application
+RUN npm run build
 
-# Start development server with host flag to make it accessible outside container
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "8080"]
+# Production stage
+FROM nginx:alpine
+
+# Copy built files from previous stage
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration for SPA
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

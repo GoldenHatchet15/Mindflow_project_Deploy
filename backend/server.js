@@ -32,6 +32,11 @@ let isConnected = false;
   console.log(`MongoDB connection status: ${isConnected ? 'Connected' : 'Not connected'}`);
 })();
 
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // Add a route to check MongoDB connection status
 app.get('/api/status', (req, res) => {
   res.json({

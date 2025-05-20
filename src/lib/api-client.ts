@@ -21,8 +21,11 @@ const getUserId = (): string => {
   return userId;
 };
 
-// API base URL - use the backend service name from docker-compose
-const API_URL = 'http://localhost:5000';
+
+// Use relative URL in production
+export const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? '/api' 
+  : process.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Get the auth token for authenticated requests
 const getAuthToken = (): string | null => {

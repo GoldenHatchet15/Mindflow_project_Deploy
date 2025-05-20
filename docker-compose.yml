@@ -4,25 +4,29 @@ services:
   frontend:
     build: .
     container_name: mindflow-frontend
+    restart: always
     ports:
-      - "8081:8080"
-    volumes:
-      - .:/app
-      - /app/node_modules
+      - "${PORT:-80}:80"  # Use PORT from Render or default to 80
     environment:
-      - NODE_ENV=development
-      - VITE_API_URL=http://localhost:5000/api
+      - NODE_ENV=production
+      - VITE_API_URL=/api  # Use relative URL for API calls
     depends_on:
       - backend
 
   backend:
     build: ./backend
     container_name: mindflow-backend
+    restart: always
     ports:
       - "5000:5000"
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
     environment:
+      - NODE_ENV=production
       - PORT=5000
       - MONGODB_URI=mongodb+srv://raphsant20:bCU4Oz6z7qJP0oBZ@cluster0.up35ing.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - JWT_SECRET=jbauIvHXKjj7UcUCiEJS_DOOudIAQp85uiPcWAJNqr0m69BgU-yNf14f2vRq2rpsG8w87geO7yg_w3sAyeAxBA
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
