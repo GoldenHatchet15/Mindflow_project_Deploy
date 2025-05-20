@@ -1,7 +1,11 @@
-# Build stage
-FROM node:18-alpine as build
+# Use Node.js as the base image
+FROM node:18-alpine
 
+# Set working directory
 WORKDIR /app
+
+# Install global dependencies
+RUN npm install -g vite
 
 # Copy package files
 COPY package.json package-lock.json ./
@@ -9,21 +13,17 @@ COPY package.json package-lock.json ./
 # Install dependencies
 RUN npm install
 
+# iNSTALL ADDITIONAL DEPENDENCIES
+RUN npm install recharts date-fns axios uuid bcryptjs jsonwebtoken --save
+
+
+RUN npm install mongodb
+
 # Copy all files
 COPY . .
 
-# Build the app for production
-RUN npm run build
+# Expose port
+EXPOSE 8080
 
-# Production stage with Nginx
-FROM nginx:alpine
-
-# Copy the build output
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Copy nginx configuration for React Router support
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+# Start development server with host flag to make it accessible outside container
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "8080"]
